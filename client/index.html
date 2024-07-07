@@ -2,32 +2,14 @@
 <html>
     <head>
         <title>Tic-Tac-Toe</title>
+        <link rel="stylesheet" href="styles.css">
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
         <script src="socket.io/socket.io.js"></script>
         <script src="script.js"></script>
+        
     </head>
 
     <body>
-        <style>
-            .board {
-                margin: auto;
-                width: 490px;
-            }
-
-            .board button {
-                height: 150px;
-                width: 150px;
-                float: left; 
-                margin: 5px;
-                font-size: 3em;
-            }
-
-            #message {
-                font-size: 3rem;
-                margin-bottom: 1rem;
-                text-align: center;
-            }
-        </style>
 
         <div id="message">Waiting for an opponent...</div>
 
