@@ -15,12 +15,13 @@ To get started with the project, follow these steps:
     cd tic-tac-toe-chat
     
   Install dependencies:
+  
     $ npm install express express-handlebars socket.io mongoose
     
   Start the server:
   
-  
-  $ npm start
+    $ npm start
+    
   Access the application:
   Open your web browser and navigate to http://localhost:3000 to start playing Tic Tac Toe and chatting.
 
