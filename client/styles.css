@@ -17,3 +17,15 @@
     margin-left: 100px;
     text-align: start;
 }
+
+.chat-area{
+    display: flex;
+    width: auto;
+    margin: 50px;
+    padding-left: 50px;
+    height: 50vh;
+}
+
+.main-container{
+    align-content: flex-end;
+}

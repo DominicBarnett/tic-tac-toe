@@ -12,10 +12,6 @@
   </head>
   <body>
 
-    <form class="username-form">
-      <input id="username-input" placeholder="Username"></input>
-      <button id="create-user-btn">Join Chat</button>
-    </form>
 
     <div id="message">Waiting for an opponent...</div>
 
@@ -24,17 +20,23 @@
         <button id="r1c0"></button> <button id="r1c1"></button> <button id="r1c2"></button>
         <button id="r2c0"></button> <button id="r2c1"></button> <button id="r2c2"></button>
     </div>
+    <div class="chat-area">
+        <form class="username-form">
+        <input id="username-input" placeholder="Username"></input>
+        <button id="create-user-btn">Join Chat</button>
+        </form>
 
-    <div class="main-container">
-      <div class="chat-container">
-        <div class="chat-container-fluid">
-          <div class="message-container">
-              <h2>Messages</h2>
-          </div>
-          <div class="text-chat-divide"></div>
-          <div class="chat-box"><textarea id="chat-input" placeholder="Type a message"></textarea><button class="btn" id="send-chat-btn">Send</button></div>
+        <div class="main-container">
+        <div class="chat-container">
+            <div class="chat-container-fluid">
+            <div class="message-container">
+                <h2>Messages</h2>
+            </div>
+            <div class="text-chat-divide"></div>
+            <div class="chat-box"><textarea id="chat-input" placeholder="Type a message"></textarea><button class="btn" id="send-chat-btn">Send</button></div>
+            </div>
         </div>
-      </div>
+        </div>
     </div>
 
   </body>

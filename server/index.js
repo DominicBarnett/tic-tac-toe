@@ -21,12 +21,6 @@ app.engine('handlebars', engine());
 app.set('view engine', 'handlebars');
 
 app.get("/", (req, res) => {
-    console.log('Server listening on Port 3000');
-    const stream = fs.createReadStream(__dirname + "/../client/index.html");
-    stream.pipe(res);
-});
-
-app.get("/chat", (req, res) => {
     res.render('index.handlebars');
 });
 
