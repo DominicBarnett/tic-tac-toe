@@ -1,5 +1,5 @@
 .board {
-    margin: auto;
+    margin-left: 100px;
     width: 490px;
 }
 
@@ -14,5 +14,6 @@
 #message {
     font-size: 3rem;
     margin-bottom: 1rem;
-    text-align: center;
+    margin-left: 100px;
+    text-align: start;
 }

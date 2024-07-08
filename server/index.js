@@ -1,27 +1,34 @@
-const http = require("http")
+const http = require("http");
 const express = require("express");
 const app = express();
 const socketIo = require("socket.io");
 const fs = require("fs");
+const { engine } = require('express-handlebars');
 
 const server = http.Server(app).listen(3000);
 const io = socketIo(server);
 const clients = {};
+let onlineUsers = {};
+const players = {}; // opponent: socket.id of the opponent, symbol = "X" | "O", socket: player's socket
+let unmatched;
 
 // Serve static resources
 app.use(express.static(__dirname + "/../client/"));
 app.use(express.static(__dirname + "/../node_modules/"));
+app.use('/public', express.static('public'));
+
+app.engine('handlebars', engine());
+app.set('view engine', 'handlebars');
 
 app.get("/", (req, res) => {
-    console.log('Server listening on Port 3000')
+    console.log('Server listening on Port 3000');
     const stream = fs.createReadStream(__dirname + "/../client/index.html");
     stream.pipe(res);
-
 });
 
-var players = {}; // opponent: scoket.id of the opponent, symbol = "X" | "O", socket: player's socket
-var unmatched;
-
+app.get("/chat", (req, res) => {
+    res.render('index.handlebars');
+});
 
 // When a client connects
 io.on("connection", function(socket) {
@@ -30,7 +37,7 @@ io.on("connection", function(socket) {
     console.log("New client connected. ID: ", socket.id);
     clients[socket.id] = socket;
 
-    socket.on("disconnect", () => {// Bind event for that socket (player)
+    socket.on("disconnect", () => { // Bind event for that socket (player)
         console.log("Client disconnected. ID: ", socket.id);
         delete clients[socket.id];
         socket.broadcast.emit("clientdisconnect", id);
@@ -48,11 +55,10 @@ io.on("connection", function(socket) {
         });
     }
 
-
     // Event for when any player makes a move
     socket.on("make.move", function(data) {
         if (!opponentOf(socket)) {
-            // This shouldn't be possible since if a player doens't have an opponent the game board is disabled
+            // This shouldn't be possible since if a player doesn't have an opponent the game board is disabled
             return;
         }
 
@@ -65,13 +71,13 @@ io.on("connection", function(socket) {
     // Event to inform player that the opponent left
     socket.on("disconnect", function() {
         if (opponentOf(socket)) {
-        opponentOf(socket).emit("opponent.left");
+            opponentOf(socket).emit("opponent.left");
         }
     });
+
+    // This file will be read on new socket connections for chat functionality
+    require('../sockets/chat.js')(io, socket, onlineUsers);
 });
-
-
-
 
 function join(socket) {
     players[socket.id] = {
@@ -82,11 +88,11 @@ function join(socket) {
 
     // If 'unmatched' is defined it contains the socket.id of the player who was waiting for an opponent
     // then, the current socket is player #2
-    if (unmatched) { 
+    if (unmatched) {
         players[socket.id].symbol = "O";
         players[unmatched].opponent = socket.id;
         unmatched = null;
-    } else { //If 'unmatched' is not define it means the player (current socket) is waiting for an opponent (player #1)
+    } else { // If 'unmatched' is not define it means the player (current socket) is waiting for an opponent (player #1)
         unmatched = socket.id;
     }
 }
