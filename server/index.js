@@ -14,9 +14,8 @@ const players = {}; // opponent: socket.id of the opponent, symbol = "X" | "O", 
 let unmatched;
 
 // Serve static resources
-app.use(express.static(__dirname + "/../client/"));
-app.use(express.static(__dirname + "/../node_modules/"));
-app.use(express.static(path.join(__dirname, 'client')));
+app.use(express.static(__dirname + "/../"));
+
 
 app.engine('handlebars', engine());
 app.set('view engine', 'handlebars');
