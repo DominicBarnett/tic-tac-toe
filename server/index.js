@@ -4,6 +4,7 @@ const app = express();
 const socketIo = require("socket.io");
 const fs = require("fs");
 const { engine } = require('express-handlebars');
+const path = require("path");
 
 const server = http.Server(app).listen(3000);
 const io = socketIo(server);
@@ -15,7 +16,7 @@ let unmatched;
 // Serve static resources
 app.use(express.static(__dirname + "/../client/"));
 app.use(express.static(__dirname + "/../node_modules/"));
-app.use('/public', express.static('public'));
+app.use(express.static(path.join(__dirname, 'client')));
 
 app.engine('handlebars', engine());
 app.set('view engine', 'handlebars');

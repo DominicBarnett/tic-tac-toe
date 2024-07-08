@@ -3,14 +3,11 @@ let socket = io.connect(url);
 
 var myTurn = true;
 var symbol;
+let currentUser;
 
 function getBoardState() {
   var obj = {};
 
-  /* We are creating an object where each attribute corresponds
-   to the name of a cell (r0c0, r0c1, ..., r2c2) and its value is
-   'X', 'O' or '' (empty).
-  */
   $(".board button").each(function() {
     obj[$(this).attr("id")] = $(this).text() || "";
   });
@@ -20,21 +17,19 @@ function getBoardState() {
 
 function isGameOver() {
     var state = getBoardState();
-    var matches = ["XXX", "OOO"]; // This are the string we will be looking for to declare the match over
+    var matches = ["XXX", "OOO"];
 
-    // We are creating a string for each possible winning combination of the cells
     var rows = [
-      state.r0c0 + state.r0c1 + state.r0c2, // 1st line
-      state.r1c0 + state.r1c1 + state.r1c2, // 2nd line
-      state.r2c0 + state.r2c1 + state.r2c2, // 3rd line
-      state.r0c0 + state.r1c0 + state.r2c0, // 1st column
-      state.r0c1 + state.r1c1 + state.r2c1, // 2nd column
-      state.r0c2 + state.r1c2 + state.r2c2, // 3rd column
-      state.r0c0 + state.r1c1 + state.r2c2, // Primary diagonal
-      state.r0c2 + state.r1c1 + state.r2c0  // Secondary diagonal
+      state.r0c0 + state.r0c1 + state.r0c2,
+      state.r1c0 + state.r1c1 + state.r1c2,
+      state.r2c0 + state.r2c1 + state.r2c2,
+      state.r0c0 + state.r1c0 + state.r2c0,
+      state.r0c1 + state.r1c1 + state.r2c1,
+      state.r0c2 + state.r1c2 + state.r2c2,
+      state.r0c0 + state.r1c1 + state.r2c2,
+      state.r0c2 + state.r1c1 + state.r2c0
     ];
 
-    // Loop through all the rows looking for a match
     for (var i = 0; i < rows.length; i++) {
         if (rows[i] === matches[0] || rows[i] === matches[1]) {
             return true;
@@ -45,10 +40,10 @@ function isGameOver() {
 }
 
 function renderTurnMessage() {
-    if (!myTurn) { // If not player's turn disable the board
+    if (!myTurn) {
         $("#message").text("Your opponent's turn");
         $(".board button").attr("disabled", true);
-    } else { // Enable it otherwise
+    } else {
         $("#message").text("Your turn.");
         $(".board button").removeAttr("disabled");
     }
@@ -56,56 +51,88 @@ function renderTurnMessage() {
 
 function makeMove(e) {
     if (!myTurn) {
-        return; // Shouldn't happen since the board is disabled
+        return;
     }
 
     if ($(this).text().length) {
-        return; // If cell is already checked
+        return;
     }
 
-    socket.emit("make.move", { // Valid move (on client side) -> emit to server
+    socket.emit("make.move", {
         symbol: symbol,
         position: $(this).attr("id")
     });
 }
 
-// Bind event on players move
 socket.on("move.made", function(data) {
-    $("#" + data.position).text(data.symbol); // Render move
+    $("#" + data.position).text(data.symbol);
 
-    // If the symbol of the last move was the same as the current player
-    // means that now is opponent's turn
     myTurn = data.symbol !== symbol;
 
-    if (!isGameOver()) { // If game isn't over show who's turn is this
+    if (!isGameOver()) {
         renderTurnMessage();
-    } else { // Else show win/lose message
+    } else {
         if (myTurn) {
             $("#message").text("You lost.");
         } else {
             $("#message").text("You won!");
         }
 
-        $(".board button").attr("disabled", true); // Disable board
+        $(".board button").attr("disabled", true);
     }
 });
 
-
-// Bind event for game begin
 socket.on("game.begin", function(data) {
-    symbol = data.symbol; // The server is assigning the symbol
-    myTurn = symbol === "X"; // 'X' starts first
+    symbol = data.symbol;
+    myTurn = symbol === "X";
     renderTurnMessage();
 });
 
-// Bind on event for opponent leaving the game
 socket.on("opponent.left", function() {
     $("#message").text("Your opponent left the game.");
     $(".board button").attr("disabled", true);
 });
 
-// Binding buttons on the board
 $(function() {
-  $(".board button").attr("disabled", true); // Disable board at the beginning
+  $(".board button").attr("disabled", true);
   $(".board> button").on("click", makeMove);
+});
+
+$(document).ready(() => {
+    $('#create-user-btn').click((e) => {
+        e.preventDefault();
+        if ($('#username-input').val().length > 0) {
+            const username = $('#username-input').val();
+            socket.emit('new user', username);
+            currentUser = username;
+            $('.username-form').remove();
+            $('.main-container').css('display', 'flex');
+        }
+    });
+
+    $('#send-chat-btn').click((e) => {
+        e.preventDefault();
+        let message = $('#chat-input').val();
+        if (message.length > 0) {
+            socket.emit('new message', {
+                sender: currentUser,
+                message: message,
+            });
+            $('#chat-input').val("");
+        }
+    });
+});
+
+socket.on('new user', (username) => {
+    console.log(`${username} has joined the chat`);
+    $('.users-online').append(`<div class="user-online">${username}</div>`);
+});
+
+socket.on('new message', (data) => {
+    $('.message-container').append(`
+        <div class="message">
+            <p class="message-user">${data.sender}: </p>
+            <p class="message-text">${data.message}</p>
+        </div>
+    `);
 });
